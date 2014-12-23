@@ -11,12 +11,6 @@ object TFIDF {
   val zhStopwords = Source.fromFile("resource/zhStopwords.txt").getLines.map(_.trim).toList
   val stopwords = engStopwords.union(zhStopwords)
 
-  def main(args: Array[String]) = {
-    val content = "hello world shit fuck cao chinese nobody main"
-    val keywords = getKeywords(content)
-    keywords.foreach(println)
-  }
-
   def getKeywords(content: String, topN: Int = 10) = {
     val allWords = BaseAnalysis.parse(content).toArray.map(_.toString.split("/")(0)).toList
     val filtered = allWords.filter { word => word.length >= 2 && !stopwords.contains(word) }
@@ -32,7 +26,7 @@ object TFIDF {
 
   def IDF(dir: String): Map[String, Double] = {
     if (new File("resource/IDF.cache").exists) {
-      return Source.fromFile("IDF.cache").getLines().map(_.split(" ")).filter(_.length == 2).map { item => item(0) -> item(1).toDouble }.toMap
+      return Source.fromFile("resource/IDF.cache").getLines().map(_.split(" ")).filter(_.length == 2).map { item => item(0) -> item(1).toDouble }.toMap
     }
     val files = new File(dir).listFiles
     val fileNum = files.length

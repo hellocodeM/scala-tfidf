@@ -42,7 +42,7 @@ object TFIDF {
     }
     val res = fre.flatten.map(_ -> 1).groupBy(_._1).map { item => item._1 -> Math.log(fileNum * 1.0 / (item._2.map(_._2).reduce(_ + _) + 1)) }
     val writer = new PrintWriter("resource/IDF.cache")
-    res.foreach{item => writer.println(item._1 + " " + item._2)}
+    res.foreach { item => writer.println(item._1 + " " + item._2) }
     writer.close
     return res
   }

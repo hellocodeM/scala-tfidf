@@ -36,7 +36,7 @@ object TFIDF {
       BaseAnalysis.parse(Source.fromFile(file).getLines.reduce(_ + _))
         .toArray.map(_.toString.split("/")(0)).toList.distinct
     }
-    val res = fre.flatten.map(_ -> 1).groupBy(_._1).map { item => item._1 -> Math.log(fileNum * 1.0 / item._2.length + 1)) }
+    val res = fre.flatten.groupBy(x=>x).map { item => item._1 -> Math.log(fileNum * 1.0 / item._2.length + 1)) }
     val writer = new PrintWriter("resource/IDF.cache")
     res.foreach { item => writer.println(item._1 + " " + item._2) }
     writer.close
@@ -45,7 +45,7 @@ object TFIDF {
 
   def TF(article: List[String]) = {
     val sum = article.length
-    article.map(_ -> 1).groupBy(_._1).map { item =>
+    article.groupBy(x=>x).map { item =>
       item._1 -> item._2.length * 1.0 / sum
     }
   }

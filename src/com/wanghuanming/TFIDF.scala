@@ -9,36 +9,32 @@ import scala.io.Source
 import org.ansj.splitWord.analysis.BaseAnalysis
 
 object TFIDF {
-  val engStopwords = Source.fromFile("resource/engStopwords.txt").getLines.map(_.trim).toList
-  val zhStopwords = Source.fromFile("resource/zhStopwords.txt").getLines.map(_.trim).toList
-  val stopwords = engStopwords.union(zhStopwords)
+  val stopwords = List("resoruce/engStopwrods.txt", "resource/zhStopwords").flatMap(Source.fromFile(_).getLines.map(_.trim))
 
-  def getKeywords(content: String, topN: Int = 10) = {
+  def getKeywords(content: String, topN: Int = 10, corpus: String) = {
     val allWords = BaseAnalysis.parse(content).toArray.map(_.toString.split("/")).filter(_.length >= 1).map(_(0)).toList
     val tf = TF(allWords.filter { word => word.length >= 2 && !stopwords.contains(word) })
-    val idf = IDF("/tmp/shakespear")
+    val idf = IDF(corpus)
     val tfidf = tf.map { item =>
-      val word = item._1
-      val freq = item._2
-      word -> freq * idf.getOrElse(word, 0.0)
+      // word -> frequency
+      item._1 -> item._2 * idf.getOrElse(item._1, 0.0)
     }.toList
     tfidf.sortBy(_._2).reverse.take(topN)
   }
 
-  def IDF(dir: String): Map[String, Double] = {
+  def IDF(corpus: String): Map[String, Double] = {
     if (new File("resource/IDF.cache").exists) {
-      return Source.fromFile("resource/IDF.cache").getLines().map(_.split(" ")).filter(_.length == 2)
+      return Source.fromFile("resource/IDF.cache").getLines.map(_.split(" ")).filter(_.length == 2)
     		  	.map { item => item(0) -> item(1).toDouble }.toMap
     }
-    val files = new File(dir).listFiles
-    val fileNum = files.length
-    val fre = files.map { file =>
+    val files = new File(corpus).listFiles
+    val fileCnt = files.length
+    val writer = new PrintWriter("resource/IDF.cache")
+    val res = files.map { file =>
       BaseAnalysis.parse(Source.fromFile(file).getLines.reduce(_ + _))
         .toArray.map(_.toString.split("/")(0)).toList.distinct
-    }
-    val res = fre.flatten.groupBy(x=>x).map { item => item._1 -> Math.log(fileNum * 1.0 / item._2.length + 1)) }
-    val writer = new PrintWriter("resource/IDF.cache")
-    res.foreach { item => writer.println(item._1 + " " + item._2) }
+    }.flatten.groupBy(x=>x).map{ item => item._1 -> Math.log(fileCnt * 1.0 / (item._2.length + 1)) }
+    res.foreach { writer.println(_.reduce(_ + " " + _)) }
     writer.close
     return res
   }

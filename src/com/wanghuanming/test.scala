@@ -9,13 +9,14 @@ object test {
                     "http://wanghuanming.com/2014/12/mesos-deploy",
                     "http://www.cnblogs.com/jasonkoo/articles/2834727.html")
     URLs.foreach{ url =>
-      val content = Source.fromURL("http://wanghuanming.com/2014/12/thread-and-process").getLines.reduce(_ + _)
+      println(url)
+      val content = Source.fromURL(url).getLines.reduce(_ + _)
       val keywords = TFIDF.getKeywords(stripTags(content), 5, "/tmp/shakespear")
       keywords.foreach(println)
     }
   }
   
   def stripTags(article: String) = {
-    article.replaceAll("<script.*?script>", "").replaceAll("<[^>]*>", "")
+    article.replaceAll("<script.*?script>", "").replaceAll("<[^>]*?>", "")
   }
 }

@@ -20,7 +20,7 @@ object TFIDF {
     val tfidf = tf.map { item =>
       val word = item._1
       val freq = item._2
-      word -> freq * idf.get(word).getOrElse(0.0)
+      word -> freq * idf.getOrElse(word, 0.0)
     }.toList
     tfidf.sortBy(_._2).reverse.take(topN)
   }
@@ -36,7 +36,7 @@ object TFIDF {
       BaseAnalysis.parse(Source.fromFile(file).getLines.reduce(_ + _))
         .toArray.map(_.toString.split("/")(0)).toList.distinct
     }
-    val res = fre.flatten.map(_ -> 1).groupBy(_._1).map { item => item._1 -> Math.log(fileNum * 1.0 / (item._2.map(_._2).reduce(_ + _) + 1)) }
+    val res = fre.flatten.map(_ -> 1).groupBy(_._1).map { item => item._1 -> Math.log(fileNum * 1.0 / item._2.length + 1)) }
     val writer = new PrintWriter("resource/IDF.cache")
     res.foreach { item => writer.println(item._1 + " " + item._2) }
     writer.close
@@ -46,7 +46,7 @@ object TFIDF {
   def TF(article: List[String]) = {
     val sum = article.length
     article.map(_ -> 1).groupBy(_._1).map { item =>
-      item._1 -> item._2.map(_._2).reduce(_ + _) * 1.0 / sum
+      item._1 -> item._2.length * 1.0 / sum
     }
   }
 }

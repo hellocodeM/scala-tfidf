@@ -1,4 +1,6 @@
-scala-TFIDF(中英文关键词提取，使用TFIDF算法）
+scala-TFIDF
+
+(中英文关键词提取，使用TFIDF算法）
 
 ## description
 Keywords extraction using TFIDF implemented in Scala, supporting both Chinese and English. 

@@ -2,17 +2,16 @@ package com.wanghuanming
 
 import java.io.File
 import java.io.PrintWriter
-
 import scala.Array.canBuildFrom
 import scala.io.Source
-
 import org.ansj.splitWord.analysis.BaseAnalysis
+import org.ansj.splitWord.analysis.ToAnalysis
 
 object TFIDF {
   val stopwords = List("resource/engStopwords.txt", "resource/zhStopwords.txt").flatMap(Source.fromFile(_).getLines.map(_.trim))
 
   def getKeywords(content: String, topN: Int = 10, corpus: String) = {
-    val allWords = BaseAnalysis.parse(content).toArray.map(_.toString.split("/")).filter(_.length >= 1).map(_(0)).toList
+    val allWords = ToAnalysis.parse(content).toArray.map(_.toString.split("/")).filter(_.length >= 1).map(_(0)).toList
     val tf = TF(allWords.filter { word => word.length >= 2 && !stopwords.contains(word) })
     val idf = IDF(corpus)
     val tfidf = tf.map { item =>
@@ -31,7 +30,7 @@ object TFIDF {
     val fileCnt = files.length
     val writer = new PrintWriter("resource/IDF.cache")
     val res = files.map { file =>
-      BaseAnalysis.parse(Source.fromFile(file).getLines.reduce(_ + _))
+      ToAnalysis.parse(Source.fromFile(file).getLines.reduce(_ + _))
         .toArray.map(_.toString.split("/")(0)).toList.distinct
     }.flatten.groupBy(x => x).map { item => item._1 -> Math.log(fileCnt * 1.0 / (item._2.length + 1)) }
     res.foreach { item => writer.println(item._1 + " " + item._2) }

@@ -11,13 +11,17 @@ object TFIDF {
   val pathPrefix = "src/main/resources/"
   val stopwords = List("engStopwords.txt", "zhStopwords.txt").flatMap(file => Source.fromFile(pathPrefix + file).getLines.map(_.trim))
 
+  /**
+    * return : List[String, Double] = List(word, freq)
+    */
+
   def getKeywords(content: String, topN: Int = 10, corpus: String) = {
     val allWords = ToAnalysis.parse(content).toArray.map(_.toString.split("/")).filter(_.length >= 1).map(_(0)).toList
     val tf = TF(allWords.filter { word => word.length >= 2 && !stopwords.contains(word) })
     val idf = IDF(corpus)
     val tfidf = tf.map { item =>
       // word -> frequency
-      item._1 -> item._2 * idf.getOrElse(item._1, 3.76)
+      item._1 -> item._2 * idf.getOrElse(item._1, 8.8)
     }.toList
     tfidf.sortBy(_._2).reverse.take(topN)
   }

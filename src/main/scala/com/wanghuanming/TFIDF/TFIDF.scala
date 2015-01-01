@@ -40,7 +40,7 @@ object TFIDF {
     defaultIDF = Math.log(fileCnt)
     val res = files.map { file =>
       ToAnalysis.parse(Source.fromFile(file).getLines.reduce(_ + _))
-        .toArray.map(_.toString.split("/")(0)).toList.distinct
+      .toArray.map(_.toString.split("/")).filter(_.length>0).map(_(0)).toList.distinct
     }.flatten.groupBy(x => x).map { item => item._1 -> Math.log(fileCnt * 1.0 / (item._2.length + 1)) }
     res.foreach { item => writer.println(item._1 + " " + item._2) }
     writer.close

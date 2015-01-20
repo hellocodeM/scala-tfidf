@@ -5,7 +5,7 @@
       <SbtProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="jdk" value="1.8" />
-        <option name="useAutoImport" value="true" />
+        <option name="sbtVersion" value="0.13.5" />
       </SbtProjectSettings>
     </option>
   </component>

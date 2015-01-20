@@ -1,11 +1,10 @@
 package com.wanghuanming.TFIDF
 
-import java.io.File
-import java.io.PrintWriter
-import scala.Array.canBuildFrom
-import scala.io.Source
-import org.ansj.splitWord.analysis.BaseAnalysis
+import java.io.{File, PrintWriter}
+
 import org.ansj.splitWord.analysis.ToAnalysis
+
+import scala.io.Source
 
 object TFIDF {
   val pathPrefix = "src/main/resources/"

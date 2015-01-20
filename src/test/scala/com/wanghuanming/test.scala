@@ -1,4 +1,4 @@
-package com.wanghuanming
+package com.wanghuanming.TFIDF
 
 import scala.io.Source
 import com.wanghuanming
@@ -10,6 +10,7 @@ object test {
                     "http://www.cnblogs.com/jasonkoo/articles/2834727.html")
     URLs.foreach{ url =>
       println(url)
+
       val content = Source.fromURL(url).getLines.reduce(_ + _)
       val keywords = TFIDF.getKeywords(stripTags(content), 5, "/tmp/shakespear")
       keywords.foreach(println)

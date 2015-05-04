@@ -27,13 +27,8 @@ object TFIDF {
    */
 
   def getKeywords(content: String, topN: Int = 10, corpus: String) = {
-    val allWords = ToAnalysis.parse(content)
-      .toArray
-      .map(_.toString.split("/"))
-      .filter(_.length >= 1)
-      .map(_(0))
-      .toList
-    val tf = TF(allWords.filter { word => word.length >= 2 && !stopwords.contains(word) })
+    val terms = segment(content)
+    val tf = TF(filterStopwords(terms))
     val idf = IDF(corpus)
     val tfidf = tf.map { case (word, freq) =>
       word -> freq * idf.getOrElse(word, defaultIDF)
@@ -41,35 +36,77 @@ object TFIDF {
     tfidf.sortBy(_._2).reverse.take(topN)
   }
 
-  private def IDF(corpus: String): Map[String, Double] = {
-    if (new File(pathPrefix + "IDF.cache").exists) {
-      val res = Source.fromFile(pathPrefix + "IDF.cache").getLines
-        .map(_.split(" "))
-        .filter(_.length == 2)
-        .map { item => item(0) -> item(1).toDouble }
-        .toMap
-      defaultIDF = Math.log(res.size)
-      return res
+  private def filterStopwords(terms: List[String]) = {
+    terms.filter { word =>
+      (word.length >= 2 && !stopwords.contains(word))
     }
-    val files = new File(corpus).listFiles
-    val fileCnt = files.size
-    val writer = new PrintWriter(pathPrefix + "IDF.cache")
-    defaultIDF = Math.log(fileCnt)
-    val res = files.map { file =>
-      ToAnalysis.parse(Source.fromFile(file).getLines.reduce(_ + _))
-        .toArray.map(_.toString.split("/")(0)).toList.distinct
-    }.flatten
-      .groupBy(x => x)
-      .map { item => item._1 -> Math.log(fileCnt * 1.0 / (item._2.length + 1)) }
-    res.foreach { item => writer.println(item._1 + " " + item._2) }
-    writer.close
-    return res
+  }
+
+  private def segment(content: String) = {
+    ToAnalysis.parse(content)
+      .toArray
+      .map(_.toString.split("/")(0))
+      .filter(_.length >= 1)
+      .toList
+  }
+
+  private def IDF(corpus: String): Map[String, Double] = {
+    loadCorpus(corpus)
   }
 
   private def TF(article: List[String]) = {
     val sum = article.length
-    article.groupBy(x => x).map {
-      item => item._1 -> item._2.length * 1.0 / sum
+    // word count
+    article.groupBy(x => x).map { case (word, list) =>
+      word -> list.length.toDouble / sum
+    }
+  }
+
+  private def loadCorpus(corpus: String) = {
+    if (Cache.exists(corpus)) {
+      Cache.read(corpus).split("\n")
+        .map(_.split("\\s+"))
+        .filter(_.length == 2)
+        .map { item => item(0) -> item(1).toDouble }
+        .toMap
+    } else {
+      constructCorpus(corpus)
+    }
+  }
+
+  private def constructCorpus(corpus: String) = {
+    val files = (new File(corpus)).listFiles
+    val fileCount = files.size
+    val writer = new PrintWriter(corpus)
+    defaultIDF = Math.log(fileCount)
+    val cor = files.map { file =>
+      segment(Source.fromFile(file).mkString) .distinct
+    }.flatten
+      .groupBy(x => x)
+      .map { case(word, list) => word -> Math.log(fileCount * 1.0 / list.length+1) }
+
+    cor.foreach { case(word, freq) => writer.println(word + " " + freq)}
+
+    writer.close
+    cor
+  }
+
+
+
+  object Cache {
+    val prefix = "src/main/resources/"
+    val postfix = ".cache"
+    
+    private def constructPath(path: String) = prefix + path + postfix
+
+    def exists(path: String) = (new File(constructPath(path))).exists
+
+    def read(path: String) = Source.fromFile(constructPath(path)).mkString
+
+    def write(path: String, content: String) = {
+      val writer = new PrintWriter(constructPath(path))
+      writer.println(content)
+      writer.close
     }
   }
 }

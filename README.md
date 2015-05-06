@@ -7,24 +7,41 @@ Keywords extraction using TFIDF implemented in Scala, supporting both Chinese an
 
 ## example
 ```scala
-// article to be extracted
-val content = Source.io.fromURL("http::/wanghuanming.com/2014/12/thread-and-process").getLines.reduce(_ + _)
-              .replaceAll("<script.*?script>", "").replaceAll("<[^>]*>", "")
-// param: content, topN, corpus
-val keyWords = TFIDF.getKeywords(content, 5, "/tmp/shakespear")
+val content = """在 Windows 平台下写游戏，相比 console 等其它平台，最麻烦之事莫过于让游戏窗口于其它窗口良好的相处。
+             即使是全屏模式，其实也还是一个窗口。如果你不去跑窗口的消息循环，一个劲的刷新屏幕，
+             我估计要被所有 Windows 用户骂死。那么怎样让你的游戏程序做一个 Windows 下的良好公民呢？
+             最简单的方法是用循环用 PeekMessage 来处理 Windows 消息，一旦消息队列为空，就转去跑一帧游戏逻辑，
+             这帧逻辑完成后游戏屏幕也被刷新了一帧。主循环代码大概看起来是这样的：for(;;) {
+              """"
+val keyWords = TFIDF.getKeywords(content, 3)
 keyWords.foreach(println)
+/*
+  (窗口,0.25338828369839717)
+  (游戏,0.22950758666561152)
+  (一帧,0.21397986067501137)
+*/
 ```
 
+## install
+```
+// download the jars from my ftp.
+wget "ftp://128.199.148.200/pub/resources/tfidf/ansj_seg-2.0.8.jar"
+wget "ftp://128.199.148.200/pub/resources/tfidf/nlp-lang-0.3.jar"
+wget "ftp://128.199.148.200/pub/resources/tfidf/tfidf_2.10-0.0.2.jar"
+// pub these jars under the "lib/" directory
+
+```
 ## usage
-First, you need to download the code, I don't provide a jar since the program is really tiny.
+I computed the IDF for you in advance, but which may not fit for your requirements.
 
-Then, you have to download the [ansj_seg](https://github.com/NLPchina/ansj_seg) as dependency, put it in ./lib/. 
+So, you'd better compute the IDF based on your own corpus like this.
+Notice that, the parameter of constructCorpus is a directory containing a huge number of documents.
 
-To start the program, you need to provide a directory of corpus in which there are thousands of articles. Of course, you need to choose Chinese corpus if you want to extract Chinese keywords or you will get frustrating results. 
-
-If you want to process a web page, HTML tags like "script", "span" must be stripped. In test example, I have written the function so you could use it directly.
-
-To speed up the IDF, I cache the results in the directory, so if you want to change the corpus, you have to delete the cache "IDF.cache" under the resource directory.
+```scala
+TFIDF.constructCorpus("/your/own/corpus/")
+// the above command will produce a file called "custome-idf.cache", which is the serialized data of IDF.
+val keywords = TFIDF.getKeywords(content, 5);
+```
 
 ## requirements
 [ansj_seg](https://github.com/NLPchina/ansj_seg)

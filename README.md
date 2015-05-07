@@ -36,7 +36,7 @@ wget "ftp://128.199.148.200/pub/resources/tfidf/tfidf_2.10-0.0.2.jar"
 
 ```
 ## usage
-I computed the IDF for you in advance, but which may not fit for your requirements.
+I have computed the IDF for you in advance, but which may not fit for your requirements.
 
 So, you'd better compute the IDF based on your own corpus like this.
 Notice that, the parameter of constructCorpus is a directory containing a huge number of documents.

@@ -27,6 +27,7 @@ TFIDF.getKeywords(content, 2).foreach(println)
 ```
 
 ## install
+You could download it from the [release](https://github.com/HelloCodeMing/scala-tfidf/releases/) link directly, or from my ftp:
 ```
 // download the jars from my ftp.
 wget "ftp://128.199.148.200/pub/resources/tfidf/ansj_seg-2.0.8.jar"

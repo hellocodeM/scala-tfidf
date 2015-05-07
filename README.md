@@ -7,18 +7,22 @@ Keywords extraction using TFIDF implemented in Scala, supporting both Chinese an
 
 ## example
 ```scala
-val content = """在 Windows 平台下写游戏，相比 console 等其它平台，最麻烦之事莫过于让游戏窗口于其它窗口良好的相处。
-             即使是全屏模式，其实也还是一个窗口。如果你不去跑窗口的消息循环，一个劲的刷新屏幕，
-             我估计要被所有 Windows 用户骂死。那么怎样让你的游戏程序做一个 Windows 下的良好公民呢？
-             最简单的方法是用循环用 PeekMessage 来处理 Windows 消息，一旦消息队列为空，就转去跑一帧游戏逻辑，
-             这帧逻辑完成后游戏屏幕也被刷新了一帧。主循环代码大概看起来是这样的：for(;;) {
-              """"
-val keyWords = TFIDF.getKeywords(content, 3)
-keyWords.foreach(println)
+val content = """《偶然》
+                  徐志摩
+                  我是天空里的一片云，偶尔投影在你的波心,
+                  你不必压抑，
+                  更无须欢喜，
+                  在转瞬间消灭了踪影。
+                  你我相逢在黑夜的海上，
+                  你有你的，我有我的方向；
+                  你记得也好，
+                  最好你忘掉，
+                  在这交会时互放的光亮！
+                  """
+TFIDF.getKeywords(content, 2).foreach(println)
 /*
-  (窗口,0.25338828369839717)
-  (游戏,0.22950758666561152)
-  (一帧,0.21397986067501137)
+    (交会,0.4707520694552998)
+    (光亮,0.4707520694552998)
 */
 ```
 

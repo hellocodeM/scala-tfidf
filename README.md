@@ -37,6 +37,31 @@ wget "ftp://128.199.148.200/pub/resources/tfidf/tfidf_2.10-0.0.2.jar"
 
 ```
 ## usage
+
+### scala REPL
+```bash
+lib -> scala -classpath "*.jar"
+Welcome to Scala version 2.11.6
+scala> import com.wanghuanming.tfidf._
+scala> 
+```
+
+### scala script
+```bash
+lib ➜ cat test.scala
+import com.wanghuanming.tfidf._
+
+val content = "我这个程序不能运行？"
+val keywords = TFIDF.getKeywords(content, 2)
+keywords.foreach(println)
+lib ➜ scala -classpath "*.jar" test.scala
+```
+
+### sbt
+Put the jar package under the lib/ directory.
+
+
+## Something nontrivial
 I have computed the IDF for you in advance, but which may not fit for your requirements.
 
 So, you'd better compute the IDF based on your own corpus like this.

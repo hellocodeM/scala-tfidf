@@ -83,5 +83,5 @@ TFIDF.constructCorpus("/your/own/corpus/")
 val keywords = TFIDF.getKeywords(content, 5);
 ```
 
-## requirements
+## dependencies
 [ansj_seg](https://github.com/NLPchina/ansj_seg)

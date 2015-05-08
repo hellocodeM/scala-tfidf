@@ -39,13 +39,23 @@ wget "ftp://128.199.148.200/pub/resources/tfidf/tfidf_2.10-0.0.2.jar"
 ## usage
 
 ### scala REPL
+Load jar package in advance:
 ```bash
 lib -> scala -classpath "*.jar"
 Welcome to Scala version 2.11.6
 scala> import com.wanghuanming.tfidf._
 scala> 
 ```
-
+Or load jar package in the Scala Shell:
+```bash
+lib -> scala 
+Welcome to Scala version 2.11.6
+scala> :require ansj_seg-2.0.8.jar
+scala> :require nlp-lang-0.3.jar
+scala> :require tfidf_2.10-0.0.2.jar
+scala> import com.wanghuanming.tfidf._
+```
+Notice that, some early Scala version use ":cp" or ":jar" to load jar, instead of ":require".
 ### scala script
 ```bash
 lib ➜ cat test.scala

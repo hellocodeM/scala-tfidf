@@ -71,10 +71,9 @@ So, you'd better compute the IDF based on your own corpus like this.
 Notice that, the parameter of constructCorpus is a directory containing a huge number of documents.
 
 ```scala
-TFIDF.constructCorpus("/your/own/corpus/")
-// the above command will produce a file called "custome-idf.cache", which is the serialized data of IDF.
-val keywords = TFIDF.getKeywords(content, 5);
+TFIDF.constructIDF("/your/own/corpus/")
 ```
+The above command will produce a file called "idf.cache", which is the serialized data of IDF.
 
 ## dependencies
 [ansj_seg](https://github.com/NLPchina/ansj_seg)

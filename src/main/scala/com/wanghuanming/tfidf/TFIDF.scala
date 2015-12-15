@@ -1,10 +1,16 @@
 package com.wanghuanming.tfidf
 
 import java.io._
+import java.util.Date
 import scala.io.Source
 
 import org.ansj.splitWord.analysis.ToAnalysis
 
+trait Logger {
+  def log(msg: String): Unit = {
+    System.err.println(new Date() + ": " + msg)
+  }
+}
 
 /**
   * Keywords extracting using TFIDF algorithm.
@@ -12,13 +18,14 @@ import org.ansj.splitWord.analysis.ToAnalysis
   * email: huanmingwong@163.com
   */
 
-object TFIDF {
+object TFIDF extends Logger {
+  final val idfPath = "/default-idf.cache"
+  final val customIDFPath = "idf.cache"
+  final val defaultIDF = Math.PI
   val stopwords = List("/engStopwords.txt", "/zhStopwords.txt").flatMap { file =>
     Source.fromInputStream(getClass.getResourceAsStream(file)).getLines().map(_.trim)
   }
-  final val idfPath = "/idf.cache"
-  final val customIDFPath = "idf.cache"
-  final val defaultIDF = Math.PI
+  var idfCache_ : Map[String, Double] = null
 
   /**
     * @param content: the article to be extracted.
@@ -29,7 +36,7 @@ object TFIDF {
   def getKeywords(content: String, topN: Int): List[(String, Double)] = {
     val terms = segment(content)
     val tf = TF(filterTrivialWord(terms))
-    val idf = IDF()
+    val idf = IDF
     val tfidf = tf.map { case (word, freq) =>
       word -> freq * idf.getOrElse(word, defaultIDF)
     }.toList
@@ -37,23 +44,31 @@ object TFIDF {
   }
 
   /**
-    * Construct your own IDF with a corpus.
+    * Construct your own readCache with a corpus.
+    * It will compute the readCache of a corpus, and cache it.
     * @param corpusPath the corpusPath must be a directory containing a huge number of documents.
     */
-  def constructCorpus(corpusPath: String) = {
+  def constructIDF(corpusPath: String) = {
     assert(new File(corpusPath).isDirectory)
     val files = new File(corpusPath).listFiles
     val fileCount = files.size
 
-    val corpus = files.flatMap { file =>
-      segment(Source.fromFile(file).mkString).distinct
-    }.groupBy(x => x)
-      .map { case (word, list) => word -> Math.log(fileCount * 1.0 / list.length + 1) }
+    log(s"constructing IDF from $fileCount documents")
+    // compute the idf
+    val corpus =
+      files.flatMap { file =>
+        segment(Source.fromFile(file).mkString).distinct
+      }.groupBy { x =>
+        x
+      }.map { case (word, list) =>
+        word -> Math.log(fileCount.toDouble / list.length + 1)
+      }.withDefaultValue(defaultIDF)
 
-    // serialize the corpus
-    val writer = new ObjectOutputStream(new FileOutputStream(new File(customIDFPath)))
-    writer.writeObject(corpus)
-    writer.close()
+    // update idf cache
+    idfCache_ = corpus
+    cacheIDF(idfCache_)
+
+    log("successfully construct the IDF and cache it")
   }
 
   private def TF(article: List[String]) = {
@@ -64,12 +79,32 @@ object TFIDF {
     }
   }
 
-  private def IDF(): Map[String, Double] = {
+  private def IDF: Map[String, Double] = {
+    if (idfCache_ == null) {
+      this.synchronized {
+        if (idfCache_ == null) {
+          idfCache_ = readIDFFromCache
+        }
+      }
+    }
+    idfCache_
+  }
+
+  private def cacheIDF(idf: Map[String, Double]): Unit = {
+    val writer = new ObjectOutputStream(new FileOutputStream(new File(customIDFPath)))
+    writer.writeObject(idf)
+    writer.close()
+  }
+
+  private def readIDFFromCache: Map[String, Double] = {
     val cacheIS = {
-      if (new File(customIDFPath).exists)
+      if (new File(customIDFPath).exists) {
+        log(s"read cache from $customIDFPath")
         new FileInputStream(new File(customIDFPath))
-      else
+      } else {
+        log(s"read cache from $idfPath")
         getClass.getResourceAsStream(idfPath)
+      }
     }
     // deserialize
     val reader = new ObjectInputStream(cacheIS)

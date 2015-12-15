@@ -27,15 +27,8 @@ TFIDF.getKeywords(content, 2).foreach(println)
 ```
 
 ## install
-You could download it from the [release](https://github.com/HelloCodeMing/scala-tfidf/releases/) link directly, or from my ftp:
-```
-// download the jars from my ftp.
-wget "ftp://128.199.148.200/pub/resources/tfidf/ansj_seg-2.0.8.jar"
-wget "ftp://128.199.148.200/pub/resources/tfidf/nlp-lang-0.3.jar"
-wget "ftp://128.199.148.200/pub/resources/tfidf/tfidf_2.10-0.0.2.jar"
-// pub these jars under the "lib/" directory
+You could download it from the [release](https://github.com/HelloCodeMing/scala-tfidf/releases/) link directly
 
-```
 ## usage
 
 ### scala REPL
@@ -71,8 +64,8 @@ lib ➜ scala -classpath "*.jar" test.scala
 Put the jar package under the lib/ directory.
 
 
-## Something nontrivial
-I have computed the IDF for you in advance, but which may not fit for your requirements.
+## Something important!
+I have computed the IDF for you in advance, but which may not fit for your own requirements.
 
 So, you'd better compute the IDF based on your own corpus like this.
 Notice that, the parameter of constructCorpus is a directory containing a huge number of documents.
